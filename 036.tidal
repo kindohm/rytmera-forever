@@ -1,0 +1,48 @@
+bps (120/120)
+
+
+
+do
+    let dis p = discretise (1/8) $ p
+    d1 $ stack [
+            midinote 0
+            , (0.5 ~>) $ midinote "3" # nudge (scale 0 0.125 $ slow 2343 rand) ] # s "midi" # gain 1.2
+    d6 $ (|+| note "[-12]/16") $ gain "1.2" # note "-6" # s "midi" # midichan 15
+    d7 $ (|+| note "[-12]/16") $ (0.5 ~>) $ gain "0.4" # note "-6" # s "midi" # midichan 15
+    d8 $ control "0 127" # ctlNum 100 # s "midi" # midichan 15 # midicmd "control"
+    d9 $ fast 2 $ stack [ 
+              ctlNum 1 # control (dis $ scale 0 127 $ shift' 300 rand) 
+            , ctlNum 2 # control (dis $ scale 0 127 $ shift' 301 rand) 
+            , ctlNum 3 # control (dis $ scale 0 127 $ shift' 302 rand) 
+            , ctlNum 4 # control (dis $ scale 0 127 $ shift' 303 rand) 
+            , ctlNum 5 # control (dis $ shift' 304 $ choose [0,127]) 
+            , ctlNum 6 # control (dis $ scale 0 127 $ shift' 305 rand) 
+            , ctlNum 7 # control (dis $ scale 0 127 $ shift' 306 rand) 
+            ] 
+        # s "midi" # midichan 15 # midicmd "control"
+
+
+hush
+
+do
+    let x p = id $ p
+    let dis p = discretise (1/8) $ p
+    d1 $ x $ stack [
+            midinote 0
+            , midinote "8*6 ~"
+            , (0.5 ~>) $ midinote "3" # nudge (scale 0 0.125 $ slow 2343 rand) ] # s "midi" # gain 1.2
+    d6 $ x $ (|+| note "-12") $ gain "1.2" # note "-6" # s "midi" # midichan 15
+    d7 $ x $ (|+| note "-12") $ (0.5 ~>) $ gain "1.2" # note "-6" # s "midi" # midichan 15
+    d8 $ x $ control "0 127" # ctlNum 100 # s "midi" # midichan 15 # midicmd "control"
+    d9 $ x $ fast 2 $ stack [ 
+              ctlNum 1 # control (dis $ scale 0 127 $ shift' 300 rand) 
+            , ctlNum 2 # control (dis $ scale 0 127 $ shift' 301 rand) 
+            , ctlNum 3 # control (dis $ scale 0 127 $ shift' 302 rand) 
+            , ctlNum 4 # control (dis $ scale 0 127 $ shift' 303 rand) 
+            , ctlNum 5 # control (dis $ shift' 304 $ choose [0,127]) 
+            , ctlNum 6 # control (dis $ scale 0 127 $ shift' 305 rand) 
+            , ctlNum 7 # control (dis $ scale 0 127 $ shift' 306 rand) 
+            ] 
+        # s "midi" # midichan 15 # midicmd "control"
+
+    hush

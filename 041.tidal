@@ -1,0 +1,15 @@
+bps (160/120)
+
+do
+    d1 $ fast 2 $ (|+| note "-7") $ note "0 ~ ~ 0 ~ 0 ~ ~" # s "midi" # midichan 15 # gain 1.15
+
+    d2 $ stack [ 
+        ((discretise 4 $ choose [0, 0.5, 0.25, 0.75]) <~) $ 
+        ((discretise 1 $ shift' 200 $ choose [0.125, 0.0625, 0.25, 0]) <~) $ 
+        sometimes (stut' (shift' 101 $ choose [1,2]) (shift' 100 $ choose [(0.125*3), (0.0625*3)]) id) $ 
+        fast (discretise 1 $ choose [0.5,1,2,4]) $ midinote "0",
+        midinote "~ ~ 3 [~ 3]"] # s "midi" # gain 1.15
+
+
+
+hush

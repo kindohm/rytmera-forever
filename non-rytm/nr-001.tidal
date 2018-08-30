@@ -1,0 +1,16 @@
+
+do
+    let deg p = degradeBy 0.2 $ shift $ p
+    d1 $ stack [
+                    slow (discretise (1/4) $ shift' 101 $ choose [1,2,0.5]) $ n "2" # gain 1.1 # nudge (scale 0 0.05 $ slow 3243 rand) # shape 0.6
+                    , deg $ n "0*8" # gain 1.1
+                    , deg $ n "1*8" 
+                        # beginend (shift' 300 $ choose [0.2, 0.2, 0.2, 0.8]) (shift' 301 $ choose [0.002, 0.003..0.01]) 
+                        # speed "[1.5,2]"
+                        # gain 0.9
+                    ] # s "edit1"
+
+
+hush
+
+d2 $ jux (rev) $ degradeBy 0.2 $ shift $ slow 32 $ striate' 256 (1/600) $ s "edit1" # n 1 # speed "[1,1.5,2]"

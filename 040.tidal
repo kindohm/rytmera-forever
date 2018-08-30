@@ -1,0 +1,33 @@
+do
+    let dis p = discretise (1/6) $ p
+    let doit = shift $ slow (discretise (1/4) $ shift' 232 $ choose [0.5,0.6..3]) $
+                        gain (randcat( 
+                            (replicate 1 "1")
+                            ++ (replicate 2 "1*2")
+                            ++ (replicate 3 "1*3")
+                            ++ (replicate 4 "1*4")
+                            ++ (replicate 5 "1*5")
+                            ++ (replicate 6 "1*6")
+                            ++ (replicate 7 "1*7")
+                            ++ (replicate 8 "1*8")
+                            ++ (replicate 9 "1*9")
+                            ++ (replicate 10 "1*10")
+                        ))
+    d1 $ (|+| note (discretise (1/8) $ choose [0,-3,-5])) $ (|*| gain 1.15) $
+            doit # stack [note "0" ] # s "midi" # midichan 15
+    d2 $ stack [ 
+              doit # ctlNum 1 # control (scale 0 127 $ slow 30 sine) 
+            , doit # ctlNum 2 # control (scale 0 127 $ slow 29 sine) 
+            , doit # ctlNum 3 # control (scale 10 127 $ slow 28 sine) 
+            , g $ doit # ctlNum 4 # control (scale 0 127 $ slow 31 sine) 
+            , doit # ctlNum 5 # control (dis $ shift' 403 $ choose [0,127]) 
+            , doit # ctlNum 6 # control (dis $ scale 0 20 $ shift' 401 rand) 
+            , doit # ctlNum 7 # control (dis $ scale 0 30 $ shift' 402 rand) 
+            , doit # ctlNum 8 # control (scale 20 127 $ slow 27 sine) 
+            , rarely (# control 127) $ doit # ctlNum 100 # control 0 
+            ] 
+        # s "midi" # midichan 15 # midicmd "control"
+
+hush
+
+d9 $ density 8 $ ctlNum 8 # control "0" # s "midi" # midichan 15 # midicmd "control"

@@ -1,0 +1,12 @@
+bps (190/120)
+
+do
+    let kpat = "{0 ~ ~ 0 ~ ~ ~ ~ ~ ~ 0 ~ ~ 0 ~ ~}%8"
+    let cpat = "{~ ~ ~ ~ ~ ~ ~ ~ 3 ~ ~ ~ ~ ~ ~ ~}%8"
+    let spat = "{0 0 0 0 0 0 ~ ~ ~ ~ ~ ~ ~ 0 0 0}%8"
+    d1 $ stack [ 
+            midinote kpat,
+            midinote cpat ] # gain 1.1 # s "midi" 
+    d2 $ note spat # s "midi" # midichan 15 # gain 1.1
+
+    hush

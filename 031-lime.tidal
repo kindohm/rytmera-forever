@@ -1,0 +1,34 @@
+bps (140/120)
+
+hush
+
+do
+    let spat = "[1.1 ~ ~ ~ ~ ~ 0.4 ~ ~ ~]"
+    let fpat = "[0   ~ ~ ~ ~ ~ 127 ~ ~ ~]"
+    let dpat = "[0   ~ ~ ~ ~ ~ 3   ~ ~ ~]"
+    let mod p = spaceOut [1,1.1,0.9,0.95,1.7,1.25,0.8,1.65,1,0.7,0.823,1.5,1,2,1.8] $ p
+    d1 $ mod $ gain spat # note "-12" # s "midi" # midichan 15
+    d2 $ mod $ control fpat # ctlNum 100 # s "midi" # midichan 15 # midicmd "control"
+    d3 $ mod $ midinote dpat # s "midi" # gain 1.2
+
+    hush
+
+do
+    let spat = shift' 331 $ every 5 (slow 2) $ randcat ( 
+                (replicate 3 "1(3,16)")
+                ++ (replicate 3 "1(5,16)") 
+                ++ (replicate 2 "1(7,16)") 
+                ++ (replicate 1 "1(9,16)") 
+                ++ (replicate 1 "1(11,16)") 
+                )
+    let dpat = "[0   ~ ~ ~ ~ ~ 3   ~ ~ ~]"
+    let mod p = id $ p
+    d1 $ (|*| gain 1.2) $ mod $ gain spat # note "-12" # s "midi" # midichan 15
+    d2 $ often (# control 127) $ (|*| control 0) $ mod $ control spat # ctlNum 100 # s "midi" # midichan 15 # midicmd "control"
+    d3 $ g $  mod $ (# midinote 0) $ midinote spat # s "midi" # gain 1.2
+    d4 $ midinote "3" # gain 1.1 # s "midi"
+    d5 $ density (discretise (2) $ shift' 3829 $ choose [4,4,8,16]) $ midinote 8 # s "midi"
+        
+
+
+    hush
