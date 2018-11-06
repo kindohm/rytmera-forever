@@ -1,0 +1,19 @@
+bps (140/120)
+
+do
+    let dis p = discretise (1/4) $ p
+    let pat = (move $ "{0 0 ~ 0 [~ 0] ~ ~ [1 0]/2 ~ ~ ~ 0 0 [0 [0 0 -2]/3] ~ ~}%8")
+    d1 $ whenmod 8 5 (slow 2) $ stack [
+        n pat
+        , n pat # ccv (dis $ scale 0 127 $ shift' 1 $ rand) # ccn 1 -- x
+        , n pat # ccv (dis $ scale 0 127 $ shift' 2 $ rand) # ccn 2 -- y
+        , n pat # ccv (dis $ scale 0 127 $ shift' 3 $ rand) # ccn 3 -- z
+        , n pat # ccv (dis $ scale 20 120 $ shift' 4 $ rand) # ccn 4 -- vol rel
+        , n pat # ccv (dis $ scale 1 20 $ shift' 5 $ rand) # ccn 5 -- ph width
+         ] # s "midi" # midichan 15 # sustain (dis $ scale 0.05 0.2 $ shift' 6 rand)
+    d2 $ sometimes (roll'') $ shift $ sometimes (roll') $ shift $ sometimes (roll) $ shift $ sometimes (0.25 ~>) $ s "midi" # midichan 0 # sustain 0.1
+    d3 $ sometimes (roll) $ shift' 20 $ 
+        sometimes ((shift $ choose[0.125,0.25,0.0625]) <~) $ s "~ midi" # midichan 1 # sustain 0.1
+
+hush
+

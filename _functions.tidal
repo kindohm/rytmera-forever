@@ -87,7 +87,12 @@ let discretise = _discretise
       where b = (\i n -> (div' i n)) <$> pi <*> pn
             e = (\i n -> (div' i n) + (div' 1 n)) <$> pi <*> pn
             div' a b = fromIntegral (a `mod` b) / fromIntegral b
-
+    rollany x p = stut' 1 x id $ p
+    roll p = rollany (0.125*3) $ p
+    roll' p = rollany (0.0625*3) $ p
+    roll'' p = rollany ((0.0625)*2) $ p
+    rollAny = rollany
+        
 
 
 d1 $ note "0" # s "midi/2" # midichan 6

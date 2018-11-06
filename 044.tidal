@@ -1,0 +1,55 @@
+bps (150/120)
+
+-- rytm gliera kit 004
+
+let
+        xmod = 9
+        shape1 = 4
+        shape2 = 5
+        pitchmod = 10
+        voicedepth = 27
+        port = 61
+        kutoff = 11
+        egdecay = 21
+        perf2 = 36
+
+hush
+
+do
+        let pat = "{1 ~ ~ ~ ~ ~ ~ 1/2 ~}%8"
+        let what = within (0,0.125)
+        let howoften = every 2
+        let reps = 4
+        let timeX p = density (discretise (1/4) $ choose [1,1,1,1,1,1,1,0.8,0.6,0.4]) $ p
+        let mod p = timeX $ whenmod 21 18 (iter 8) $ whenmod 20 15 (move) $ p
+        let whenweird = whenmod 40 35
+        -- main drums
+        d1 $ mod $ howoften (what (const $ whenweird (# midinote 1) $ midinote 3 # s "midi" # gain 1.15)) $ stack [
+                rep' reps $ whenweird (# midinote 2) $ (|*| gain 1.1) $ gain pat # midinote 0,
+                whenweird (|+| note 2) $ 
+                        sometimesBy 0.1 (# midinote 9) $ shift' 108 $ density (discretise (1/2) $ shift' 99 $ choose [1,2,(4/3),4,(6/3),8,(12/3),16,(18/3)]) $ 
+                        gain "1*2" # midinote 8 ] # s "midi"
+        -- main bass
+        d2 $ mod $ (|+| note (discretise (1/3) $ shift' 8833 $ choose [-12,-12])) $
+                howoften (what (const $ note 5 # s "midi" # gain 0.5 # midichan 15)) $
+                rep' reps $ (|*| gain 1.1) $ gain pat # midichan 15 # s "midi"
+        -- main bass CC
+        d3 $ mod $ stack [ 
+                whenweird  (# ccv 127) $ ccn 6 # ccv 0,
+                ccn "5*16" # ccv (discretise (1/3) $ scale 0 25 $ slow 14 rand),
+                ccn "4*16" # ccv (discretise (1/3) $ scale 0 45 $ slow 13 rand),
+                ccn "1*16" # ccv (discretise (1/3) $ scale 10 127 $ slow 10 rand),
+                ccn "2*16" # ccv (discretise (1/3) $ scale 10 127 $ slow 11 rand),
+                ccn "3*16" # ccv (discretise (1/3) $ scale 10 127 $ slow 12 rand)] # s "midi" # midichan 15
+        -- ML 182
+        d5 $ g $ stack [
+                (|+| n "[36 12 24]/24") $ 
+                        gain "1*16" # n (choose [0,1,3,-2,6,10]),
+                gain "1*16" # ccn xmod # ccv (scale 0 127 $ slow 10 sine),
+                gain "1*16" # ccn voicedepth # ccv (scale 0 127 $ slow 9 sine),
+                gain "1*16" # ccn port # ccv (scale 1 30 $ slow 8 sine),
+                gain "1*16" # ccn egdecay # ccv (scale 20 50 $ slow 8.5 sine) ] 
+                        # s "midi" # midichan 14
+        
+        
+hush
