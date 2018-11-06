@@ -1,0 +1,21 @@
+bps (160/120)
+
+
+do
+    let pat = "{ 1 1 1 0 0 1 0 1 1 0 0 0 1 1 ~ ~ 1 0 ~  1 1 1 ~ ~ ~ ~ ~ ~}%16"
+    d1 $ stack [ 
+            (|*| gain 1.1) $ gain pat,
+            ccn "1*16" # ccv (discretise (1/3) $ scale 0 127 $ slow 7 rand),
+            ccn "2*16" # ccv (discretise (1/3) $ scale 0 127 $ slow 8 rand),
+            ccn "4*16" # ccv (discretise (1/3) $ scale 0 20 $ slow 18 rand),
+            ccn "5*16" # ccv (discretise (1/3) $ scale 70 80 $ slow 19 rand),
+            ccn "3*16" # ccv (discretise (1/3) $ scale 1 64 $ slow 6 rand) ] 
+            # midichan 15 # s "midi" 
+    d2 $ stack [
+            gain (pat) # midinote 0,
+            (0.5 ~>) $ roll $ midinote "3",
+            midinote "{8*4 8*4 ~ ~ ~}%4",
+            midinote "1"
+        ] # s "midi"
+
+    hush
