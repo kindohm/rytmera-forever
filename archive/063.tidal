@@ -1,0 +1,44 @@
+
+
+setcps 0.6
+
+d1 
+  $ stack [
+    every 3 rev 
+      $ n (scale "ritusen" ("{0 4 3 9 8 7 1 3 2}%4" + "<0>") )
+      , ccn "10*4" # ccv (range 64 64 $ slow 20 tri)
+      ]
+  # s "midi" 
+  # midichan 15
+  # gain 1.05
+
+d2 
+  $ stack [
+    (0.0625 <~)
+      $ struct "{1 ~ ~}%8"
+      $ (|+ n 12)
+      $ every 3 rev 
+      $ n (scale "ritusen" ("{0 4 3 9 8 7 1 3 2}%4" + "<0>") )
+      # legato 3
+    , ccn "10*4" # ccv (range 64 64 $ slow 19 tri)
+  ]
+  # s "midi" 
+  # midichan 14
+  # gain 1
+
+p "drums" $ stack [
+  sometimesBy 0.1 (superimpose ((# midinote 9) . (0.0625 <~))) $ shift' 101 $ degradeBy 0.8 $ shift' 33 $ density 16 $ midinote "8"
+  , rarely (# midinote 3) $ shift' 4 $ degradeBy 0.7 $ shift' 2 $ gain "1*16" # midinote (wchoose [(0,0),(1,0),(2,1)]) # gain (range 1 1.2 $ shrand 10871)
+] # s "midi" 
+
+p "drums" $ silence
+
+hush
+
+  
+(72/120)
+
+
+hush
+
+

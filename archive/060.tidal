@@ -1,0 +1,35 @@
+setcps 0.7
+
+d1 
+    $ sometimes (stutWith (shift' 333 $ choose [2,3,3,3,4,4,4,4]) 0.0625 (|+ n "{1}%16")) 
+    $ shift' 33
+    $ sometimes roll'
+    $ shift' 33
+    $ shift' 33
+    $ sometimes (0.25 <~)
+    $ degradeBy 0.3
+    $ shift
+    $ s "kit60(3,8,<0 2 5>)" 
+    # gain 1.1
+
+d2 
+    $ sometimes (stutWith (shift' 333 $ choose [2,3,3,3,4,4,4,4]) 0.0625 (# note (shift' 2343 $ choose [0,3,7,9]))) 
+    $ shift' 33
+    $ sometimes roll'
+    $ shift' 33
+    $ sometimes roll
+    $ shift' 33
+    $ degradeBy 0.3
+    $ shift
+    $ (|+ note (shift' 1881 $ choose [0,-12,0,12,-24,-24,-36,-36]))
+    $ rarely (stutWith 2 (0.125*3) (|+ note "-24"))
+    $ gain "1(3,8,<0 2 5>)" # note (shift' 23891 $ choose [0,3,7,9]) # s "midi"
+
+
+d3 $ shift' 33 $ shift' 33 $ shift' 33 $ degradeBy 0.3 $ shift $ stack [ 
+    gain "1(3,8,<0 2 5>)" # ccn 1 # ccv (range 0 127 $ shrand 2342) 
+    , gain "1(3,8,<0 2 5>)" # ccn 2 # ccv (range 0 127 $ shrand 233) 
+    , gain "1(3,8,<0 2 5>)" # ccn 3 # ccv (range 0 127 $ shrand 23423) 
+    ] # s "midi"
+
+hush

@@ -1,0 +1,77 @@
+setcps (160/120/2)
+
+let phase = 1
+    volrel = 2
+    harm = 3
+    ph = 4
+    phoff = 5
+    fenv = 6
+    phwidth = 7
+    mixer = 8
+    scene = 92
+
+
+do
+    let spat1 = "{1 ~ ~ ~ ~ 1 ~ ~ ~ ~ ~}%4"
+        spat2 = "{1 ~ ~ 1 ~ ~ ~ ~ ~}%4"
+        patmod p = whenmod 16 12 (slow 2) $ rarely (one) $ shift' 108 $ rep (discretise (1/8) $ choose [2,3,4,5]) $ p
+        gainpat = patmod $ gain (randcat [spat1])
+    p "synth"
+        $ stack [
+            (|* gain 1.1)
+                $ gainpat
+                # note (discretise (1/8) $ choose [-12,-11..1])
+                # sustain 0.1
+            , gainpat # ccn phase # ccv (discretise (1/8) $ range 64 127 $ shrand 20)
+            , gainpat # ccn phoff # ccv (discretise (1/8) $ range 80 105 $ shrand 21)
+        ]
+        # s "midi" 
+        # midichan 15
+    p "drums"
+        $ (|* gain 1.15)
+        $ stack [
+            gainpat # midinote "0"
+            , degradeBy 0.2 $ gain "~ [1]" # midinote 3,
+            (# ccv (discretise (1/4) $ shift' 83902 $ choose [0,1,2])) $ gainpat # ccn scene 
+        ]
+        # s "midi"
+
+hush
+
+:t slowcat
+
+setcps 0.5
+
+d1 
+    $ spreadChoose ($) [(0.125 <~), (0.125 ~>), id, (0.25 <~), (0.25 ~>), id] 
+    $ (1 <~)
+    $ every 5 (jux rev)
+    $ every 4 rev
+    $ superimpose ((|* gain (range 0.8 1 $ slow 12 sine)) . (# orbit 1) . (# hpf (range 40 2000 $ slow 10 sine)) . (# hpq 0.1) . (# lpq 0.1) . (# lpf (range 40 3000 $ slow 11 sine)) . iter 32 )
+    $ stack [
+        g $ rarely (one) $ shift' 33 $ s "k(3,8) ~" 
+            # n 7
+            # shape 0.5
+        , g $ rarely (stutWith 2 (0.125*3) (|* speed 1.1)) 
+            $ (1 <~) 
+            $ (0.5 ~>) 
+            $ (|* speed (range 1 1.5 $ slow 1 saw)) 
+            $ striate' (discretise 1 $ shift' 77 $ choose [32,16,64,8,128]) (discretise 1 $ shift' 10 $ choose [0.1,0.11..0.5]) 
+            $ s "s"
+            # shape 0.5
+            # speed (discretise (1/3) $ slow 44 $ choose [0.5,0.51..3.5])
+        , s "ch*4" # n 1
+        , slow (discretise 1.5 $ choose [4,8,16]) 
+            $ superimpose ((|* speed 1.1) . (# pan 0))
+            $ striate' (discretise 1 $ shift' 379 $ choose [256,1024,512,2048]) (discretise 1 $ shift' 9917 $ choose [0.01,0.012..0.1]) 
+            $ s "mi" # n 69
+            # speed 1
+            # pan 1
+            # gain 0.9
+    ]
+    # cps (discretise (1) $ range 0.4 0.8 $ slow 33 rand)
+    # orbit 0
+
+    
+
+    hush

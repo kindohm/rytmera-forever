@@ -1,0 +1,61 @@
+bpm 160
+
+let phase = 1
+    volrel = 2
+    harm = 3
+    ph = 4
+    phoff = 5
+    fenv = 6
+    phwidth = 7
+    mixer = 8
+    scene = 92
+    pitchScale = 9
+
+hush
+
+let stutWith n t f p = innerJoin $ (\a b -> _stutWith a b f p) <$> n Sound.Tidal.Context.<* t
+
+let stut' = stutWith
+
+d1 $ ccn "8*8" # ccv 0 # s "midi" # midichan 15
+
+hush
+    
+do
+    let pat1 = "1 ~ ~ 1 ~ 1 ~ ~" 
+    let pat2 = "1 [~ 1] ~ 1 ~ ~ ~ ~" 
+    let pat3 = "1 1*2 ~ ~ ~ ~ ~ ~" 
+    let pat4 = "1 ~ 1 1 ~ ~ ~ ~"
+    let pat5 = "1 ~ ~ ~ ~ 1 ~ ~"
+    let pat6 = "~ 1 ~ ~ ~ ~ ~ ~"
+    let phoffdefault = 95
+    let shifting = ((discretise (1/8) $ shift' 32 $ choose [0,0,0,0.25,0.5,0.125]) ~>)
+    let pat = shifting $ 
+                (cat [pat1,pat1,pat1,pat1,pat2,pat2,pat2,pat2,pat3,pat3,pat3,pat3,pat4,pat4,pat4,pat4])
+    let mod p = 
+                sometimesBy 0.1 roll'' $ shift $ sometimesBy 0.1 (roll) $ shift $ p
+    let modbig p = whenmod 12 8 (move) $ p
+    d1 $ (|* gain 1.1) $ modbig $ stack [
+        slow 2 $ gain "~ ~ ~ [~ ~ ~ 0.5]/4" # n "[0,2,5]",
+        mod $ slow 2 $ 
+            gain pat
+            # n "[0,2,5]" # sustain 0.35,
+        slow 2 $ gain pat # ccn volrel # ccv 127,
+        ccn phoff # ccv (discretise (1/8) $ range 80 110 $ slow 21 tri),
+        ccn pitchScale # ccv (discretise (1/8) $ shift' 7 $ choose [20,40]),
+        ccn phwidth # ccv (discretise (1/8) $ range 2 2 $ shift' 901 rand),
+        slow 2 $ ccn phase # ccv (discretise (1/4) $ range 20 30 $ slow 20 tri)        ]
+        # s "midi" # midichan 15       
+    d2 $ (|* gain 1.2) $ modbig $ stack [ 
+        g $ mod $ slow 2 $ gain pat # midinote "0",
+        slow 2 $ midinote "~ ~ ~ [~ ~ ~ 3]/4"] # s "midi"
+
+
+hush
+
+d1 $ gain "[1.2 0.5]/2" # n "0" # s "midi" # midichan 15
+
+
+d1 $ stutWith 2 (0.125*3) (|* speed 1.5) $ s "k/2"
+
+hush

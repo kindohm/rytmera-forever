@@ -1,0 +1,25 @@
+
+do
+
+    d1 $ (|* cps (scale 0.6 1 $ slow 30 sine)) $ stack [
+        midinote "[~ 0*2?] [~ 0 ~ ~] [~ 0*2?] [~ 0*2?] ~ [0? 0 ~ ~] ~",
+        midinote "~ ~ ~ ~ ~ ~ [3 ~ ~ 3/4]",
+        midinote "~ ~ [1 ~ ~ 1/3] ~ ~ ~ ~",
+        within (0.05, 0.75) (sometimesBy 0.34 ((|+ note 1))) $ shift' 8 $ midinote "2 [2 ~ ~ 2] [~ 2 ~ ~] 2 2*2 [~ ~ 2/2 2] ~"
+        ] # s "midi" # cps "0.35"
+
+    d2 $ (|* cps (scale 0.6 1 $ slow 30 sine)) $ stack [
+        (|* gain 1.15) $
+        (|+ note 0) $
+        gain "1 ~ ~ ~ ~ ~ 0.4" # note "[0]" # midichan 15,
+        ccn "1*14" # ccv (scale 0 127 $ slow 4.1 sine) # midichan 15,
+        ccn "2*14" # ccv (scale 0 127 $ slow 3.1 sine) # midichan 15,
+        ccn "3*14" # ccv (scale 5 100 $ slow 9 sine) # midichan 15,
+        ccn "6*14" # ccv (scale 5 127 $ slow 10 sine) # midichan 15,
+        ccn "7*14" # ccv (scale 5 5 $ slow 14 sine) # midichan 15
+        ] # s "midi" # cps "0.35"
+        
+
+d2 silence
+
+hush

@@ -1,0 +1,55 @@
+bpm (80)
+
+let mel = p "mel"
+    drums = p "drums"
+
+
+do
+    let seq1 = "1 ~ ~ 1 ~ ~ ~ ~"
+        seq2 = "~ 1 ~ ~ 1 ~ ~ ~"
+        seq3 = "~ ~ ~ 1 ~ ~ 1 ~"
+        seq4 = "~ ~ 1 ~ ~ 1 ~ ~"
+        scale1 = (reven 4)
+        scale2 = (rodd 4)
+        progression = "indian"
+        drumDelayFreq = [0,0,0,0,127]
+        drumRevFreq = [0,0,0,0,127]
+    mel $ degradeBy 0.1 $ stack [
+        rarely (|+ octave "1") $ shift' 20 $
+        pan (every 5 rev $ cat [seq2, seq1, seq4, seq3])
+        # n (scale progression (cat [scale2, scale1])) 
+        # s "midi" # midichan 15 
+        # octave (choose [5])
+        # gain (range 1 1.25 $ slow 13 rand), 
+        rarely (|+ octave "-1") $ shift' 21 $ pan (cat [seq3, seq4, seq1, seq2]) 
+        # n (scale progression (whenmod 6 4 rev $ cat [scale1, scale2, scale2])) 
+        # s "midi" # midichan 14 
+        # octave (choose [4])
+        # gain (range 1 1.25 $ slow 33 rand),
+        gain "1*8" # ccv (range 0 127 $ slow 2 tri) # ccn 1 # s "midi" # midichan 15 ]
+    drums $ stack [
+        density 2 $ rarely (off (0.125) id) $ shift $ off (0.125*3) id $ midinote "{0 ~ [0/2] ~ ~ 0 [~ 0] ~ 0/3 ~}%2",
+        midinote "~ 3",
+        degradeBy 0.5 $ gain "1*16" # midinote (shift' 234 $ choose [8,8,8,2,1,6,7,7]),
+        ccv (discretise (2) $ shift' 107 $ choose [0..8]) # ccn 16 # midichan 12,  -- delay time
+        ccv (discretise (2) $ shift' 108 $ choose [20..60]) # ccn 19 # midichan 12, -- delay fb
+        ccv 0 # ccn 82 # midichan 0, -- ch delay
+        ccv (discretise (2) $ shift' 101 $ choose drumDelayFreq) # ccn 82 # midichan 1, -- ch delay
+        ccv (discretise (2) $ shift' 102 $ choose drumDelayFreq) # ccn 82 # midichan 2, -- ch delay
+        ccv (discretise (2) $ shift' 103 $ choose drumDelayFreq) # ccn 82 # midichan 3, -- ch delay
+        ccv (discretise (2) $ shift' 104 $ choose drumDelayFreq) # ccn 82 # midichan 6, -- ch delay
+        ccv (discretise (2) $ shift' 105 $ choose drumDelayFreq) # ccn 82 # midichan 7, -- ch delay
+        ccv (discretise (2) $ shift' 106 $ choose drumDelayFreq) # ccn 82 # midichan 8, -- ch delay
+        ccv (discretise (2) $ shift' 200 $ choose drumRevFreq) # ccn 83 # midichan 0, -- ch delay
+        ccv (discretise (2) $ shift' 201 $ choose drumRevFreq) # ccn 83 # midichan 1, -- ch delay
+        ccv (discretise (2) $ shift' 202 $ choose drumRevFreq) # ccn 83 # midichan 2, -- ch delay
+        ccv (discretise (2) $ shift' 203 $ choose drumRevFreq) # ccn 83 # midichan 3, -- ch delay
+        ccv (discretise (2) $ shift' 204 $ choose drumRevFreq) # ccn 83 # midichan 6, -- ch delay
+        ccv (discretise (2) $ shift' 205 $ choose drumRevFreq) # ccn 83 # midichan 7, -- ch delay
+        ccv (discretise (2) $ shift' 206 $ choose drumRevFreq) # ccn 83 # midichan 8 -- ch delay
+        ] # s "midi"
+
+hush
+
+d1 silence
+d1 $ _every 1 (# speed 1) $ slow 2 $ s "k"

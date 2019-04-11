@@ -1,0 +1,40 @@
+-- ml 178
+bps (220/120)
+
+-- rytm kit 045 wtf
+
+let 
+    ccpat = gain "1*8"
+    xmod = 9
+    vdepth = 27
+    decay = 17
+    release = 19
+    egdecay = 21
+    egrelease = 23
+    egsustain = 22
+    pitchmod = 10
+    shape1 = 4
+    shape2 = 5
+    k = 11
+
+do
+    d1 $ g $ stack [
+        note "{2 1 5}%8",
+        ccpat # ccn k # ccv (scale 0 10 $ slow 12.1 sine),
+        ccpat # ccn shape1 # ccv (scale 0 20 $ slow 11.1 sine),
+        ccpat # ccn shape2 # ccv (scale 0 20 $ slow 13.1 sine),
+        ccpat # ccn pitchmod # ccv (scale 64 80 $ slow 12.1 sine),
+        ccpat # ccn egdecay # ccv (scale 20 30 $ slow 9 sine),
+        ccpat # ccn egsustain # ccv (scale 10 30 $ slow 8 sine),
+        ccpat # ccn xmod # ccv (scale 2 10 $ slow 10 sine),
+        ccpat # ccn vdepth # ccv (scale 0 10 $ slow 11 sine) ] 
+            # s "midi" # midichan 12 
+    d2 $ stack [ 
+            midinote "{[0 3]/4 ~ 0/5}%8" ] # s "midi" # midichan 0
+    d3 $ g $ stack [ 
+        g $ (0.25 ~>) $ midinote "9",
+        sometimes (rollAny (0.125)) $ 
+            shift $ sometimes (roll) $ shift $ sometimes (0.125 ~>) $ midinote "0",
+        midinote "~ 3" ] # s "midi" # midichan 0
+    
+hush

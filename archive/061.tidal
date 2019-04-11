@@ -1,0 +1,52 @@
+
+
+setcps (150/120/2)
+
+
+hush
+
+
+
+let mod p = sometimes (stutWith 2 (0.0625*3) id)
+              $ shift
+              $ rep (shift' 234 $ choose [2,3]) $ p
+
+
+d1 
+  $ (|* gain 1.1)
+  $ stack [ 
+      rarely (stutWith (shift' 104 $ choose [2,3,4]) (0.125*3) (|+ note (shift' 4001 $ choose [12,-12]))) 
+        $ shift 
+        $ degradeBy 0.5 
+        $ shift 
+        $ rarely (|+ note "-12")
+        $ shift
+        $ gain "1(3,16)" 
+        # note (choose [5,1,-2]) 
+        # legato 4
+      , fast 3 $ gain 1 # ccv (foldEvery [2,3,4] (20 ~>) $ (range 0 120 $ slow 17 sine) ) # ccn 1
+      , fast 3 $ gain 1 # ccv (foldEvery [3,5,7] (3 <~) $ (range 0 120 $ slow 19.13 sine)) # ccn 2
+      , fast 3 $ gain 1 # ccv (foldEvery [4,5,6] (15 <~) $ (range 0 120 $ slow 21.03 sine)) # ccn 3
+      , fast 3 $ gain 1 # ccv (foldEvery [2,4,6,8] (4 ~>) $ (range 0 100 $ slow 26.53 sine)) # ccn 4
+      , fast 2 $ gain 1 # ccv (whenmod 20 15 (const $ "127") $ "0") # ccn 5
+      , fast 3 $ gain 1 # ccv (foldEvery [3,7,11] (14 ~>) $ (range 0 127 $ slow 24.53 sine)) # ccn 6
+      ]
+  # s "midi" 
+  # midichan 15
+
+
+hush
+
+d2 
+  $ (|* gain 1.2)
+  $ every 8 (const $ midinote "[8 8 8 11] [~ ~ 1 ~] [~ 4? ~ ~] ~" # s "midi") 
+  $ stack [
+    rarely one $ shift $ degradeBy 0.1 $ midinote "0(3,16)" # nudge (range 0 0.2 $ shrand 101)
+    , (0.5 ~>) $ degradeBy 0.3 $ midinote "3" 
+    , whenmod 10 5 (g) $ midinote 2
+  ] # s "midi"
+
+hush
+
+
+  hush

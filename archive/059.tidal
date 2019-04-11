@@ -1,0 +1,97 @@
+bpm 160
+
+let phase = 1
+    volrel = 2
+    harm = 3
+    ph = 4
+    phoff = 5
+    fenv = 6
+    phwidth = 7
+    mixer = 8
+    scene = 92
+
+hush
+
+d1 $ ccn "8*8" # ccv 0 # s "midi" # midichan 15
+
+hush
+    
+do
+    let mod p = sometimesBy 0 (roll'') $ shift $ p
+    let pat1 = "1/4 [~ 1] ~ 1" 
+    let pat2 = "1/4 [~ 1] [1 ~ ~ 1] ~"
+    let pat3 = "1/4 [~ 1] [~ 1] ~"
+    let pat4 = "1/4 [~ 1] [~ 1]*2 ~"
+    let pat5 = (degradeBy 0.8 $ shift' 3 $ "1*16")
+    let phoffdefault = 95
+    let mixerpat = "[127 1 1 1]/4 1 1 1"
+    let relpat2 = "127"
+    let relpat1 = "4"
+    let pat = pat1
+    let relpat = relpat1
+    let envpat = (range 127 127 $ slow 11 tri) 
+    let phamount = (discretise (1/4) $ shift' 1000 $ choose [0])
+    let sceneNum = (discretise (1/4) $ shift' 1000 $ choose [0])
+    let phoffrange = (discretise (1/4) $ range 80 110 $ slow 30 rand)
+    let phoffpat = phoffrange
+    let drumsGain = 1
+    d1 $ (|* gain 1.1) $ stack [
+        slow 2 $ 
+            gain pat
+            # n "[0,2,5]" # sustain 0.35,
+        slow 2 $ gain pat # ccn phase # ccv (range 5 60 $ slow 16.317 saw),
+        slow 2 $ gain pat # ccn volrel # ccv relpat,
+        slow 2 $ gain pat # ccn harm # ccv (range 0 127 $ slow 19.181 tri),
+        slow 2 $ gain pat # ccn fenv # ccv envpat, 
+        slow 2 $ gain pat # ccn ph # ccv phamount,
+        slow 2 $ gain pat # ccn phoff # ccv phoffpat,
+        slow 2 $ gain pat # ccn phwidth # ccv 2,
+        slow 2 $ gain pat # ccn mixer # ccv mixerpat
+        ]
+        # s "midi" # midichan 15       
+    d2 $ (|* gain 1.2) $ (|* gain drumsGain) $ mod $ stack [ 
+        off (0.125) id $ (1 ~>) $ (0.25 ~>) $ midinote "8/2",
+        slow 2 $ within (0,0.25) (# gain 0) $ gain pat # midinote "0", 
+        rarely (roll) $ shift' 2 $ slow 2 $ every 4 (g) $ midinote "3",
+        slow 2 $ gain pat # ccn scene # ccv sceneNum] # s "midi"
+
+
+-- backup!
+do
+    let mod p = sometimesBy 0 (roll'') $ shift $ p
+    let pat1 = "1/4 [~ 1] ~ 1" 
+    let pat2 = "1/4 [~ 1] [1 ~ ~ 1] ~"
+    let pat3 = "1/4 [~ 1] [~ 1] ~"
+    let pat4 = "1/4 [~ 1] [~ 1]*2 ~"
+    let phoffdefault = 95
+    let relpat2 = "0 127 127 [127 127 127 0]/4"
+    let relpat1 = "0"
+    let pat = pat4
+    let relpat = relpat2
+    let phamount = (discretise (1/4) $ shift' 1000 $ choose [0])
+    let sceneNum = (discretise (1/4) $ shift' 1000 $ choose [0])
+    let phoffrange = (discretise (1/4) $ range 90 100 $ slow 30 rand)
+    let phoffpat = phoffdefault
+    let drumsGain = 1
+    d1 $ mod $ stack [
+        slow 2 $ within (0,0.25) (|+ n "12") $
+            gain pat 
+            # n "[0,2,5]" 
+            # sustain "0.55" ,
+        slow 2 $ gain pat # ccn phase # ccv (range 0 127 $ slow 16.317 saw),
+        slow 2 $ gain pat # ccn volrel # ccv relpat,
+        slow 2 $ gain pat # ccn harm # ccv (range 0 127 $ slow 10.181 tri),
+        slow 2 $ gain pat # ccn fenv # ccv 127, 
+        slow 2 $ gain pat # ccn ph # ccv phamount,
+        slow 2 $ gain pat # ccn phoff # ccv phoffpat,
+        slow 2 $ gain pat # ccn phwidth # ccv 2
+        ]
+        # s "midi" # midichan 15       
+    d2 $ (|* gain drumsGain) $ mod $ stack [ 
+        off (0.125) id $ (1 ~>) $ midinote "8/2",
+        slow 2 $ within (0,0.25) (# gain 0) $ gain pat # midinote "0", 
+        rarely (roll) $ shift' 2 $ slow 2 $ every 4 (g) $ midinote "3",
+        slow 2 $ gain pat # ccn scene # ccv sceneNum] # s "midi"
+
+
+        hush

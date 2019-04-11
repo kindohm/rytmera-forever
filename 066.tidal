@@ -1,0 +1,222 @@
+
+let harmor = p "harmor"
+    harmorcc = p "harmorcc"
+    xfade = p "xfade"
+    pair = p "pair"
+    perc = p "perc"
+    back = p "back"
+
+    hush
+
+setcps (160/120/2)
+
+do
+  let pat x = (rep (choose [5,7,9]) $ slow 2 $ x "1")
+  let cpvary f p = sometimesBy 0.3 (f) $ p 
+  let mod p = whenmod 12 6 (degrade) $ shift $ whenmod 20 17 (iter 8) $ whenmod 10 5 move $ sometimes one $ shift $ p
+  harmor $ mod $ cpvary (id) $ pat n # s "midi" # note "[-3]" # midichan 15 # gain 1.2
+  xfade $ mod $ cpvary (# ccv 1) $ pat n # s "midi" # ccn 4 # ccv 0 # midichan 15
+  harmorcc $ slow 2 $ stack [ 
+    ccn 1 # ccv (range 1 127 $ shrand 891) 
+    , ccn 2 # ccv (range 1 127 $ shrand 892) 
+    , ccn 3 # ccv (range 1 127 $ shrand 893) 
+    , ccn 5 # ccv (shift' 2308 $ choose [0,1])
+    , ccn 6 # ccv (range 1 127 $ shrand 1000)
+    , ccn 7 # ccv (range 1 127 $ shrand 1001)
+    ] # s "midi" # midichan 15
+  pair $ mod $ cpvary (# midinote 3) $ pat n # midinote 2 # s "midi" 
+  back $ rarely one $ shift' 3 $ rarely roll $ shift' 334 $ rarely roll' $ shift $ midinote "~ 1" # s "midi"
+  perc
+      $ degradeBy 0.2 
+      $ shift' 33
+      $ rarely (# midinote 7) 
+      $ shift
+      $ n "1*16" 
+      # midinote 6 
+      # s "midi" # gain (range 0.9 1.25 $ shrand 23849)
+
+
+
+      -- reusable refactor:
+
+do
+  let chan = 15
+  let stdsynth x = s "midi" # midichan x
+  let xfaderon = (# ccv 1)
+  let xfaderoff = (# ccv 0)
+  let xfader = ccn 4 # ccv 0 # stdsynth chan
+  let synth notes = note notes # gain 1.25 # stdsynth chan
+  let kick = midinote 2 # s "midi" # gain 1.2
+  let bt = midinote 4 # s "midi" # gain 1.2
+  let rumble p = (0.0625 ~>) $ p
+  let percpat p = degradeBy 0.4 $ shift' 8878 $ struct "1*16" $ p
+  let perc = midinote (shift' 7338 $ choose [6,7,8,9]) # s "midi" # gain (range 0.8 1.2 $ shrand 7337)
+  let backpat p = struct "~ t" $ p
+  let back = midinote 1 # s "midi" # gain 1.2
+  let clapon = (# midinote 3)
+  let synthon = (|* gain 1)
+  let synthoff = (# gain 0.4)
+  let hold x p = discretise x $ p
+  let dis = (1/2)
+  let bitcc x p = (# ccv (shift' x $ choose [0,1])) $ p
+  let fullcc x p = (# ccv (range 0 127 $ shrand x)) $ p
+  let xcc = ccn 1 # stdsynth chan
+  let ycc = ccn 2 # stdsynth chan
+  let zcc = ccn 3 # stdsynth chan
+  let harm = ccn 5 # stdsynth chan
+  let ph = ccn 8 # stdsynth chan
+  let phwidth = ccn 6 # stdsynth chan
+  let phoff = ccn 7 # stdsynth chan
+  let fullx = fullcc 100 $ xcc
+  let fully = fullcc 101 $ xcc
+  let fullz = fullcc 102 $ xcc
+  let bitharm = bitcc 103 $ harm
+  let bitph = bitcc 104 $ ph
+  let fullphoff = fullcc 105 $ phoff
+  let fullphwidth = fullcc 106 $ phwidth
+  let vary a f p = sometimesBy a f $ shift $ p
+  -- stuff above is standard hidden stuff
+  -- stuff you actually code is below
+  let varyamt = 0.3
+  let mod p = whenmod 20 17 (iter 8) 
+              $ sometimes one'
+              $ shift
+              $ degradeBy 0
+              $ shift
+              $ p
+  let pat = struct (every 5 (fast 2) $ rep (choose [5,7,9]) $ slow 2 $ "1")
+  p "kick"    $ mod $ vary varyamt clapon $ pat $ kick
+  p "rumble"  $ g $ mod $ rumble $ pat $ bt
+  p "perc"    $ mod $ percpat $ perc
+  p "back"    $ mod $ backpat $ back
+  p "harmor"  $ (|* gain 0.97) $ mod $ vary varyamt synthon $ pat $ synth "[-3]"
+  p "xfader"  $ mod $ vary varyamt xfaderon $ xfaderoff $ pat $ xfader
+  p "cc"      $ mod $ hold dis $ stack [
+                fullx
+                , fully
+                , fullz
+                , bitharm
+                , fullphwidth
+                , fullphoff
+                , bitph
+              ] # stdsynth chan
+
+hush
+
+
+
+import Sound.Tidal.Utils
+
+-- | chooses between a list of functions, using a pattern of integers
+pickF :: Pattern Int -> [Pattern a -> Pattern a] -> Pattern a -> Pattern a
+
+let pickF pi fs pat = innerJoin $ (\i -> _pickF i fs pat) <$> pi
+
+_pickF :: Int -> [Pattern a -> Pattern a] -> Pattern a -> Pattern a
+let _pickF i fs p =  (fs !!! i) p
+
+Then you can do this:
+
+let panpat = "{1 1 0 0 0 1 0 1 1 0 0 0 1 1 0 ~ ~}%8"
+
+let structpat = struct (every 5 (fast 2) $ rep (choose [5,7,9]) $ slow 2 $ "1")
+
+d1 $ pickF panpat [id, (# midinote 3)] $ pan panpat # sound "midi" # midinote 2 # gain 1.2
+
+
+
+
+---- REFACTOR 2
+
+do
+  let 
+      degBy = degradeBy
+      deg0 = degradeBy 0.0
+      deg1 = degradeBy 0.1
+      deg2 = degradeBy 0.2
+      deg3 = degradeBy 0.3
+      deg4 = degradeBy 0.4
+      deg5 = degradeBy 0.5
+      deg6 = degradeBy 0.6
+      deg7 = degradeBy 0.7
+      deg8 = degradeBy 0.8
+      deg9 = degradeBy 0.9
+      deg10 = degradeBy 1
+      chan = 15
+      -- stdsynth chan = s "midi" # midichan chan
+      _pickF i fs p =  (fs !!! i) p
+      pickF pi fs pat = innerJoin $ (\i -> _pickF i fs pat) <$> pi
+      kick = s "midi" # midinote 2 # gain 1.2
+      clap = s "midi" # midinote 3 # gain 1.2
+      synth num = s "midi" # midichan num # gain 1.2
+      percrun = midinote "{8 10 11}%16" # s "midi" # gain 1.2
+      percrand = s "midi" # midinote (shift' 9090 $ choose [8,10,11]) # gain 1.2
+      ch = s "midi" # midinote 8 # gain 1.2
+      oh = s "midi" # midinote 9 # gain 1.2
+      cy = s "midi" # midinote 10 # gain 1.2
+      cb = s "midi" # midinote 11 # gain 1.2
+      xfader = ccn 4 # ccv 0 # s "midi" # midichan 15
+      synthOff = (# gain 0.4)
+      synthOn = (# gain 1.2)
+      xfadeOn = (# ccv 1)
+      xfadeOff = (# ccv 0)
+      xfadeon = xfadeOn
+      xfadeoff = xfadeOff
+      synthoff = synthOff
+      synthon = synthOn
+      hold x p = discretise x $ p
+      bitcc x p = (# ccv (shift' x $ choose [0,127])) $ p
+      fullcc x p = (# ccv (range 0 127 $ shrand x)) $ p
+      xcc = ccn 1 
+      ycc = ccn 2 
+      zcc = ccn 3 
+      harm = ccn 5 
+      ph = ccn 8 
+      phwidth = ccn 6 
+      phoff = ccn 7 
+      scenecc = ccn 92
+      kicklencc = ccn 37
+      percrevcc = ccn 44
+      fullx = fullcc 100 $ xcc
+      fully = fullcc 101 $ ycc
+      fullz = fullcc 102 $ zcc
+      bitharm = bitcc 103 $ harm
+      bitph = bitcc 104 $ ph
+      fullphoff = fullcc 105 $ phoff
+      fullphwidth = fullcc 106 $ phwidth
+      fullscenes2 = (# ccv (shift' 107 $ choose [0,1,2])) $ scenecc
+      randscene2 = fullscenes2
+      randkicklen = ccv (shift' 8393 $ choose [0,0,127]) # kicklencc
+      randpercrev = ccv (shift' 1919 $ choose [0,0,127]) # percrevcc
+      sometimesRep varyAmt replacement p = pickF (sometimesBy varyAmt (const $ "1") $ "0") [id, replacement] $ p
+      sometimesRepl = sometimesRep
+      sRep = sometimesRep
+      sRepl = sRep
+      sb = sometimesBy
+      sh = shift'
+      ss = shift'
+      patmod p = every 3 (fast 2) $ rep (choose [3,5,5,7,7,9,11]) $ slow 2 $ p
+      dis = (1/2)
+      mod p = id $ p
+  p "drums" $ mod $ sRepl 0.3 (# clap) $ patmod $ struct "1" $ kick
+  p "synth" $ mod $ sRepl 0.3 (synthOff) $ (# note "[-7]") $ synthOn $ patmod $ struct "1" $ synth 15
+  p "xfade" $ mod $ sRepl 0.3 (xfadeon) $ patmod $ struct "1" $ xfader
+  p "perc"  $ mod $ deg5 $ struct "1*16" $ percrun
+  p "dcc"   $ mod $ foldEvery [3,4,5] (2.5 ~>) $ hold 1 $ stack [
+              randscene2
+              , randkicklen
+              , randpercrev
+            ] # kick
+  p "cc"    $ mod $ hold dis $ stack [
+              fullx
+              , fully
+              , fullz
+              , bitharm
+              , bitph
+              , fullphoff
+              , fullphwidth
+            ] # cps (160/120/2) # synth 15
+
+
+
+hush

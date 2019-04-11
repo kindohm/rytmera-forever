@@ -2,13 +2,15 @@
 (
 SuperDirt.postBadValues = false;
 
+// s.options.device_("JackRouter");
+
 s.options.numBuffers = 1024 * 16;
 s.options.memSize = 8192 * 16;
 s.options.maxNodes = 1024 * 32;
 s.options.numOutputBusChannels = 2;
 s.waitForBoot {
 	~dirt = SuperDirt(2, s);
-	// ~dirt.loadSoundFiles("C:\\Users\\kindohm\\studio\\tidal-samples\\tracks\\shared\\*");
+	// ~dirt.loadSoundFiles("/Users/kindohm/studio/tidal-samples/mostlywavs/*");
 	s.sync;
 	~dirt.start(57120, [0, 0]);
 
@@ -21,3 +23,4 @@ s.waitForBoot {
 };
 s.latency = 0.0;
 );
+

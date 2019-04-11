@@ -1,24 +1,86 @@
-bps (150/120)
+setcps (160/120/2)
+
 
 do
-        let pat = "{1 ~ ~ ~ ~ ~ ~ 1/2 ~}%8"
-        let what = within (0,0.125)
-        let howoften = every 2
-        let reps = 4
-        let mod p = whenmod 21 18 (iter 8) $ whenmod 20 15 (move) $ p
-        d1 $ mod $ howoften (what (const $ midinote 3 # s "midi" # gain 1.1)) $ stack [
-                rep' reps $ (|*| gain 1.1) $ gain pat # midinote 0,
-                (|*| gain 1.1) $ gain (inv <$> pat) # midinote 3,
-                g $ sometimesBy 0.1 (# midinote 9) $ shift' 108 $ density (discretise (1/2) $ shift' 99 $ choose [1,2,(4/3),4,(6/3),8,(12/3)]) $ gain "1*2" # midinote 8 ] # s "midi"
-        d2 $ mod $ (|+| note (discretise (1/3) $ shift' 8833 $ choose [-12,-12])) $
-                howoften (what (const $ note 5 # s "midi" # gain 0.5 # midichan 15)) $
-                rep' reps $ (|*| gain 1.1) $ gain pat # midichan 15 # s "midi"
-        d3 $ mod $ stack [ 
-                ccn "5*16" # ccv (discretise (1/3) $ scale 0 25 $ slow 14 rand),
-                ccn "4*16" # ccv (discretise (1/3) $ scale 0 25 $ slow 13 rand),
-                ccn "1*16" # ccv (discretise (1/3) $ scale 0 127 $ slow 10 rand),
-                ccn "2*16" # ccv (discretise (1/3) $ scale 0 127 $ slow 11 rand),
-                ccn "3*16" # ccv (discretise (1/3) $ scale 0 127 $ slow 12 rand)] # s "midi" # midichan 15
+    let pats = slowcat [ 
+                gain "1*8" # cps (220/120/2)
+                , gain "{1 ~ ~}%8" # cps (220/120/2)
+                , gain "1(5,8)" # cps (220/120/2)
+                , gain "1(<3 7 5 5 6>,8,<0 3 2 1>)" # cps (220/120/2)
+                , gain "1*8" # cps (150/120/2)
+                ]   
+    d1 
+        $ superimpose (# midinote 8) 
+        $ (|* gain 1.25) 
+        $ pats 
+        # s "midi" # midichan 0 # midinote 0
+    d2 $ (|* gain 1.2) $ pats # note "[-3,1]" # s "midi" # midichan 15
+    d3 $ stack [
+        ccn 1 # ccv (range 0 127 $ shrand 2)
+        , ccn 2 # ccv (range 0 127 $ shrand 3)
+        , ccn 3 # ccv (range 0 127 $ shrand 4)
+        , ccn 4 # ccv (range 0 127 $ shrand 15)
+        , ccn 5 # ccv (range 0 127 $ shrand 5)
+        , ccn 6 # ccv (range 0 127 $ shrand 6)
+        , ccn 7 # ccv (range 0 127 $ shrand 7)
+        ] # s "midi" # midichan 15
 
+hush
+
+
+d1 
+    $ superimpose ((# orbit 1) . slow (shift' 33 $ choose [2,3,4]) . (# bpf (range 100 2000 $ shrand 18190)) . (|* speed (range 0.25 1 $ shrand 2839)) . (# bpq 0.4)) 
+    $ stack [
+        degradeBy 0.2 $ s "{peri peri*2 tite*2 tite*2 doru*2}%8" # n (irand 20) # speed 2 # cut 1,
+        degradeBy 0.32 $ shift $ s "fk(<3 5 6 4 7>,8,<0 3 1 2>) ~" # cut 2 # n 7 # gain 1.2,
+        s "~ s",
+        jux rev $ stutWith 2 (0.0625) (|* speed 0.666) $ density 2 
+            $ struct "t(<3 5>,8,<0 5 3>)" $ slow 128 $ striate' 1024 (1/15) $ s "turret" # gain 0.8 # speed "[1.5 1 2, 0.5]*128" # lpf 2000 # hpf 100
+] # orbit 0
+
+hush
+
+setcps (160/120/2)
+
+do
+    let ga = (|* gain 1.2)
+    let pat = "1(<3 7 5 9>,16, <0 4 2 7 10>)"
+    let mod p = whenmod 17 14 (slow 1.5) $ whenmod 20 17 (iter 8) $ whenmod 10 5 move' $ p
+    d3 $ mod $ ga $ someCyclesBy 0.5 (within (0,0.5) (const $ rarely (stutWith (shift' 3289 $ choose [2,3]) (0.0625*3) id) $ shift' 383 $ s "rytm" # midinote 3))
+        $ stack [
+            pan pat # midinote 2,
+            stutWith 3 (0.0625) (|+ note 1) $ pan pat # midinote 9,
+            midinote "~ 0" ] # s "rytm"
+    d4 $ mod $ slow 1 $ ccn 92 # ccv (shift' 18 $ choose [0,0,2,3]) # s "rytm" # midichan 0
 
         hush
+
+d1 
+    $ (|+ note "0")
+    $ stutWith 2 (0.0625*3) id 
+    $ (|+ note "-24") $  stutWith 6 (0.125*3) (|+ note "-1") $ note "4/2"
+    # legato 4 # midichan 1 # s "rytm" # gain 1.15
+
+d2 $ stutWith 2 (0.125*3) id $  note "-24" # s "rytm" # midichan 2 # gain 1.15
+
+d3 $ s "rytm*8" # midichan 8 # note "-24"
+
+hush
+
+setcps (160/120/2)
+
+d1 $ every 3 (rev) $ density 2 $ every 2 (|+ note "12") $ (|+ note "-8") $
+    (|+ note "-36") $
+  note "0 4 7 11 12 16 19 23" # midichan 1 # s "rytm" # gain 1.15
+
+  d1 silence
+
+d2 $ fast 2 
+    $ note "-24(3,8)" # s "rytm" # midichan 5
+
+d2 silence
+
+hush
+
+
+d1 $ s "midi" # midinote 0 # midichan 0

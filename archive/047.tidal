@@ -1,0 +1,14 @@
+bps (140/120)
+
+let inv 1 = 1
+    inv 0 = 0
+    inv 3 = 0
+
+
+do
+    let pat = "{0 1 0 1 0 0 0 1 1 0 0 1 3 ~ ~ ~}%8"
+    d1 $ midinote pat # s "midi" 
+    d2 $ rarely (stut' 1 (0.125) (|+| note 12)) $ 
+        gain (inv <$> pat) # note "2" # s "midi" # midichan 12
+
+    hush

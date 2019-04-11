@@ -1,0 +1,27 @@
+-- tidal 1.0.0
+
+do
+    let pat1 = "<[1 1*3] 1*12 1(3,16) 1*16>"
+    let cpspat1 = (slowcat ["2", (scale 1.5 0.125 $ saw), "2", (scale 0.125 1.5 saw)])
+    let pat2 = "<1*6 [1(3,8) 1(3,16)] 1*4 1*3>"
+    let cpspat2 = (slowcat [(scale 0.25 1 $ saw), "2", (scale 1.5 0.5 $ saw), "1"])
+    let pat3 = "<1*3 1*2>"
+    let cpspat3 = (scale 0.25 4 $ slow 16 saw)
+    let pat = pat1
+    let cpspat = cpspat1
+    d1 $ gain pat 
+        # cps cpspat
+        # stack [g $ midinote 0, midinote 1, g $ sometimesBy 0.05 (|+| note 1) $ shift $ midinote "8"] 
+        # s "midi" 
+    d2 $ g $ midinote "3/2" # s "midi"
+    d3 $ stack [
+        (|+ note "[0 -12]/16") $ gain pat # note "[0,4,7,11,14]"
+        , (# ccn 1) $ ccn pat # ccv (scale 0 127 $ slow 20 sine) 
+        , (# ccn 2) $ ccn pat # ccv (scale 0 127 $ slow 21 sine) 
+        , (# ccn 3) $ ccn pat # ccv (scale 0 80 $ slow 19 sine) 
+        , (# ccn 4) $ ccn pat # ccv (scale 20 100 $ slow 17 sine) 
+        , (# ccn 5) $ ccn pat # ccv (scale 40 100 $ slow 22 sine) 
+        ] # s "midi" # midichan 15
+
+
+hush

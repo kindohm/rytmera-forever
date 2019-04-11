@@ -1,0 +1,44 @@
+
+let
+  x = 1
+  y = 2
+  z = 3
+  blur = 4
+  harm = 5
+  detune = 6
+  phaser = 7
+  penv = 8
+  prism = 9
+  perf1 = 35
+
+
+do
+  let pat = "1*32"
+  let cpspat1 = "[[1 0.666] [1.25 0.3333] 0.5 0.75]"
+  let cpspat2 = "[0.7 [0.5 0.25] [0.8 1] 0.333]"
+  let cpspat3 = "[0.25 0.125 [0.5 0.75] 1]"
+  let cpspat4 = (range 0.1 1.5 $ slow 2.7 sine)
+  let cpspat5 = (range 0.3 2 $ slow 1 sine)
+  d1 
+    $ stack [
+      gain pat # midinote 0 # midichan 0
+      , midinote "[~ 3]*2" # midichan 0
+      , slow 2 $ ccn perf1 # ccv (shift' 300 $ choose [0,30,60,90])
+      , stack [
+          (|+ note (discretise (1/2) $ shift' 404 $ choose [0,0,0,-12])) $ gain pat # note "[0,2,5]" 
+          , slow 2 $ ccn x # ccv (range 0 127 $ shrand 100)
+          , slow 2 $ ccn y # ccv (range 0 127 $ shrand 101)
+          , slow 2 $ ccn z # ccv (range 0 60 $ shrand 102)
+          , slow 2 $ ccn blur # ccv (range 0 60 $ shrand 103)
+          , slow 2 $ ccn harm # ccv (range 0 127 $ shrand 104)
+          , slow 2 $ ccn detune # ccv (range 0 127 $ shrand 105)
+          , slow 2 $ ccn prism # ccv (range 64 127 $ shrand 106)
+          , slow 2 $ ccn phaser # ccv (shift' 10011 $ choose [0,0,0,127])
+          , slow 2 $ ccn penv # ccv (shift' 289 $ choose [64, 64, 64, 64, 64, 64,90,127,0,0,0])
+      ] # midichan 15 # nudge 0.01
+    ] 
+    # cps (randcat [cpspat1, cpspat2, cpspat3, cpspat4, cpspat5] * (discretise 1 $ range 0.5 0.7 $ shrand 7))
+    # legato 1
+    # s "midi" 
+
+    hush
