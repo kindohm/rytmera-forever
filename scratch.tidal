@@ -83,4 +83,6 @@ d2 silence
 hush
 
 
-d1 $ s "midi" # midinote 0 # midichan 0
+d1 $ s "midi*16" # ccv (range 1 127 $ rand) # ccn 1 # midichan 0
+
+d2 $ s "midi" # midichan 0

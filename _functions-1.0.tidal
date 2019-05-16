@@ -32,7 +32,6 @@ let rip a b p = within (0.25, 0.75) (slow 2 . rev . stut 8 a b) p
 --     inv 0 = 1
 --     inv 11 = 0
 --     inv 10 = 1
-    bpm x = setcps (x/120)
     brakk samps = ((# unit "c") . (# speed "8")) $ sound (samples samps (irand 30))
     brakk4 samps = ((# unit "c") . (# speed "4")) $ sound (samples samps (irand 30))
     move p = foldEvery [3,4] (0.25 <~) $ p

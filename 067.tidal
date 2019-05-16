@@ -1,0 +1,35 @@
+
+do
+  let 
+      mainpat = "1(<3 5 3 9 3 5 3>,16,<0 4 1 8>)"
+      hatpats = ["8*2", "8*3", "8(3,16,<0 8 4>)", "8(3,8,<0 4 2>)", "8*4" ]
+      vary = within (0.5,0.9) (const $ stack [ midinote "~ [3 [~ ~ ~ ~]]" # s "midi" # gain 1.15 # nudge (range 0 0.1 $ shrand 8239), ccv "~ 110" # ccn "[31,23]" # midichan 12 # s "midi" ])
+      slices = ["{10 1 4}%16", "{2 ~ [5 8]/2}%16", "{3 4 5}%16", "{0 1}%16", "{0 ~ ~}%16", "{~ 7 10/2}%16"]
+  d1 
+      $ (|* gain 1.15)
+      $ whenmod 20 15 (id)
+      $ someCyclesBy 0 (slicepat 16 (randcat slices))
+      $ shift
+      $ spreadr ($) ([someCyclesBy 0.5 vary, someCyclesBy 0.4 vary, someCyclesBy 0.3 vary])
+      $ shift
+      $ stack [
+          -- kick
+          struct mainpat $ midinote 2
+          -- tom
+          , (# gain (range 0.8 1 $ shrand 2839411)) $ struct (inv mainpat) $ midinote 5 
+          -- hats
+          , sometimesBy 0.1 (superimpose ((# midinote 9) . (0.0625 <~))) 
+              $ ss 666
+              $ pan (randcat hatpats) # midinote 8
+          -- snare
+          , midinote "{1 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~}%16"
+          -- synth
+          , ((3/16) ~>) $ struct mainpat $ note "-24"
+          -- noise snare
+          , g $ midinote "~ 4"
+          , whenmod 16 8 (# kicklong) $ kicklong # kick
+          , struct mainpat $ ccv 110 # ccn "[31,23]"  # midichan 12
+      ]
+      # s "midi" # cps (160/120/2)
+
+hush
