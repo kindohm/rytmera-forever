@@ -9,13 +9,14 @@ do
   let fill2 = slicepat 16 "{4 5 6}%16"
   let fill1 = slicepat 8 "{1 2 3}%8"
   d1 
+    $ shift
     $ whenmod 29 26 (iter 8)
-    $ whenmod 17 15 (fill1)
-    $ whenmod 18 16 (fill2)
+    $ whenmod 13 11 (fill1)
+    $ whenmod 11 9 (fill2)
     $ whenmod 12 8 rev
     $ stack [
       -- kick
-      whenmod 16 8 (doublekick)
+      whenmod 14 7 (doublekick)
         $ sometimesBy 0.1 roll' $ struct (whenmod 10 5 (inv) $ pat) $ midinote 0
       -- hat
       , rarely (# midinote 9) $ ((1/16) ~>) $  sometimesBy 0.1 roll' $ struct (whenmod 10 5 (inv) $ inv $ pat) $ midinote 8
@@ -36,6 +37,6 @@ do
       , pan 0 # ccv (shift' 102 $ choose [0,0,0,127]) # ccn 37
       -- bass rev
       , pan 0 # ccv (shift' 103 $ choose [0,0,0,127]) # ccn 39 ] 
-    # s "midi"
+    # s "midi" # cps (200/120/2)
 
     hush

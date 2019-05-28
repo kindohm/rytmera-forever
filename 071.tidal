@@ -1,0 +1,62 @@
+
+
+setcps (160/120/2)
+
+
+do
+  let pat = "1(<3 7 5 11 9>,16,<0 2 5>)"
+  let doublekick p = superimpose ((0.0625 ~>) . (# midinote 4)) $ p
+  d1 
+    $ whenmod 11 9 (slicepat 8 "{0 6 3}%8") 
+    $ whenmod 12 10 (slicepat 16 "{10 12 14}%16")
+    $ foldEvery [3,4] (0.5 ~>) 
+    $ whenmod 6 4 (rev)
+    $ stack [
+    struct (foldEvery [2,4,6] inv $ pat) $ midinote "0"
+    , g $ struct (foldEvery [2,3,4] inv $ pat) $ midinote "{8 8 8 8 8 9}%16"
+    , g $ struct (foldEvery [6,9,12] inv $ pat) $ midinote "3"
+    , g $ struct "~ 1 [~ 1] ~" $ midinote 2
+    , g $ stutWith 2 (0.0625) (|+ note "{3 5 12}%16") 
+      $ struct (foldEvery [3,5,7] inv $ pat) $ midichan 1 # note "-24"
+    , g $ degradeBy 0.3 $ every 2 rev $ foldEvery [2,3,4,5,6] (2 ~>) $ struct "1*16" 
+      $ midinote "{10 11 6 7}%19"
+    , note "{-24 -17 ~ ~ ~ -19 -16 ~ ~ ~ -22 ~ ~ ~ }%2" # midichan 5
+    , g $ every 10 (# ccv 0) $ ccv "0" # ccn 36
+    , whenmod 26 22 (# ccv 0) $ ccv 0 # ccn 35] 
+    # s "midi" 
+    # gain 1.2
+
+hush
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+see ya!
+
+
+
+
+
+
+
+
+
+
+
+
+

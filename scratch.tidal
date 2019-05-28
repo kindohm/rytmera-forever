@@ -1,88 +1,86 @@
+
+
+d1 
+  $ someCyclesBy 0.4 (const $ s "~")
+  $ (|* gain 1.2)
+  $ (|+ nudge (range 1 2 $ slow 4 sine)) 
+  $ note "2*16" 
+  # s "midi" 
+  # cps 0.666
+
+d2
+  $ fast 1.21
+  $ (1001 <~)
+  $ someCyclesBy 0.4 (const $ s "~")
+  $ (|* gain 1.2)
+  $ (|+ nudge (range 1 2 $ slow 4 sine)) 
+  $ note "1*16" 
+  # s "midi"   
+
+d3
+  $ fast 1.31
+  $ (2010 <~)
+  $ someCyclesBy 0.4 (const $ s "~")
+  $ (|* gain 1.2)
+  $ (|+ nudge (range 0.5 2 $ slow 8 sine)) 
+  $ note "0*16" 
+  # s "midi" 
+
+  hush
+
+  setcps (160/120/2)
+
+  d1 $ slow 2 $ (|+ note "-24") $ pan "0" # note (scale "ritusen" "{0 3 1 -1 -2 4}%13") # midichan 1 # s "midi" # legato 0.8
+
+  d2 
+    $ slow 2 $ (|+ note "-24") 
+    $ pan "1(<3 2>,8, <0 3 5>)" # note (scale "ritusen" "{0 -1 3 5 8 6}%17") # midichan 0 # s "midi" # legato 0.8
+
+do
+  let pat = "1(<3 9 7 5 11>,16,<0 2 5>)"
+  d3 
+    $ degradeBy 0.4
+    $ shift
+    $ sometimes (# midichan 3) 
+    $ struct pat $ midichan 2 # s "midi" # gain 1.2 # note "-24"  
+  d4 $ degradeBy 0.4 $ shift $ struct (inv pat) $ midichan 8 # note "-24" # s "midi" # gain 1.2
+
+    hush
+
+
+do
+  let pat = someCyclesBy 0.1 (slow 2) $ shift' 331 $ sometimes roll $ shift' 189 $ "1(<3 7 5 9>,16,<0 1>)" :: Pattern Bool
+  d1 
+    $ degradeBy 0.2
+    $ shift' 3
+    $ whenmod 16 13 (iter 8)
+    $ foldEvery [3,4] (1.75 ~>)
+    $ (|+ note (discretise (1/2) $ shift' 2829 $ choose [0,1,2,3]))
+    $ stack [ 
+    struct pat $ note 0
+    , struct pat $ note 8
+    , sometimes roll $ shift $ note 4 
+    ] # s "midi" # midichan 15 # gain 1.2
+
+    hush
+
 setcps (160/120/2)
 
 
 do
-    let pats = slowcat [ 
-                gain "1*8" # cps (220/120/2)
-                , gain "{1 ~ ~}%8" # cps (220/120/2)
-                , gain "1(5,8)" # cps (220/120/2)
-                , gain "1(<3 7 5 5 6>,8,<0 3 2 1>)" # cps (220/120/2)
-                , gain "1*8" # cps (150/120/2)
-                ]   
-    d1 
-        $ superimpose (# midinote 8) 
-        $ (|* gain 1.25) 
-        $ pats 
-        # s "midi" # midichan 0 # midinote 0
-    d2 $ (|* gain 1.2) $ pats # note "[-3,1]" # s "midi" # midichan 15
-    d3 $ stack [
-        ccn 1 # ccv (range 0 127 $ shrand 2)
-        , ccn 2 # ccv (range 0 127 $ shrand 3)
-        , ccn 3 # ccv (range 0 127 $ shrand 4)
-        , ccn 4 # ccv (range 0 127 $ shrand 15)
-        , ccn 5 # ccv (range 0 127 $ shrand 5)
-        , ccn 6 # ccv (range 0 127 $ shrand 6)
-        , ccn 7 # ccv (range 0 127 $ shrand 7)
-        ] # s "midi" # midichan 15
+  let pat = (whenmod 10 5 palindrome $ slow (discretise (1/2) $ shift' 82 $ choose [1,2]) $ "1(<3 9 7 5 11>,16,<0 3 8>)") :: Pattern Bool
+  d1 
+    $ whenmod 16 10 move
+    $ shift' 27
+    $ whenmod 10 5 rev
+    $ sometimesBy 0.2 (randDelay)
+    $ shift' 2388
+    $ sometimesBy 0.1 (stutWith (shift' 8 $ choose [2,3]) (0.125) (|* speed 1.5))
+    $ (|+ n (discretise (shift' 2892 $ choose [(1/2),(1/3),(1/4)]) $ shift' 234 $ choose [0,1,2,3,4,5]))
+    $ stack [ 
+      struct pat $ s "synth1" # cut 1 # gain 0.9 # n 0
+      , struct pat $ s "k1" # cut 2 # n 0
+      , sometimes roll' $ shift' 234 $ sometimes roll $ shift' 707 $ rarely (stutWith 8 (1/16) (|* gain 0.93)) $ s "s1" # n 0
+    ]
 
-hush
-
-
-d1 
-    $ superimpose ((# orbit 1) . slow (shift' 33 $ choose [2,3,4]) . (# bpf (range 100 2000 $ shrand 18190)) . (|* speed (range 0.25 1 $ shrand 2839)) . (# bpq 0.4)) 
-    $ stack [
-        degradeBy 0.2 $ s "{peri peri*2 tite*2 tite*2 doru*2}%8" # n (irand 20) # speed 2 # cut 1,
-        degradeBy 0.32 $ shift $ s "fk(<3 5 6 4 7>,8,<0 3 1 2>) ~" # cut 2 # n 7 # gain 1.2,
-        s "~ s",
-        jux rev $ stutWith 2 (0.0625) (|* speed 0.666) $ density 2 
-            $ struct "t(<3 5>,8,<0 5 3>)" $ slow 128 $ striate' 1024 (1/15) $ s "turret" # gain 0.8 # speed "[1.5 1 2, 0.5]*128" # lpf 2000 # hpf 100
-] # orbit 0
-
-hush
-
-setcps (160/120/2)
-
-do
-    let ga = (|* gain 1.2)
-    let pat = "1(<3 7 5 9>,16, <0 4 2 7 10>)"
-    let mod p = whenmod 17 14 (slow 1.5) $ whenmod 20 17 (iter 8) $ whenmod 10 5 move' $ p
-    d3 $ mod $ ga $ someCyclesBy 0.5 (within (0,0.5) (const $ rarely (stutWith (shift' 3289 $ choose [2,3]) (0.0625*3) id) $ shift' 383 $ s "rytm" # midinote 3))
-        $ stack [
-            pan pat # midinote 2,
-            stutWith 3 (0.0625) (|+ note 1) $ pan pat # midinote 9,
-            midinote "~ 0" ] # s "rytm"
-    d4 $ mod $ slow 1 $ ccn 92 # ccv (shift' 18 $ choose [0,0,2,3]) # s "rytm" # midichan 0
-
-        hush
-
-d1 
-    $ (|+ note "0")
-    $ stutWith 2 (0.0625*3) id 
-    $ (|+ note "-24") $  stutWith 6 (0.125*3) (|+ note "-1") $ note "4/2"
-    # legato 4 # midichan 1 # s "rytm" # gain 1.15
-
-d2 $ stutWith 2 (0.125*3) id $  note "-24" # s "rytm" # midichan 2 # gain 1.15
-
-d3 $ s "rytm*8" # midichan 8 # note "-24"
-
-hush
-
-setcps (160/120/2)
-
-d1 $ every 3 (rev) $ density 2 $ every 2 (|+ note "12") $ (|+ note "-8") $
-    (|+ note "-36") $
-  note "0 4 7 11 12 16 19 23" # midichan 1 # s "rytm" # gain 1.15
-
-  d1 silence
-
-d2 $ fast 2 
-    $ note "-24(3,8)" # s "rytm" # midichan 5
-
-d2 silence
-
-hush
-
-
-d1 $ s "midi*16" # ccv (range 1 127 $ rand) # ccn 1 # midichan 0
-
-d2 $ s "midi" # midichan 0
+    hush

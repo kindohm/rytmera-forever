@@ -1,0 +1,25 @@
+setcps (160/120/2)
+
+do
+  let pat = (shift $ sometimesBy 0.2 one $ shift $ slow "<2 4>" $ "1(<11 7 13 5 9>,32,0)") :: Pattern Bool
+      defaultWidth = 9
+      howoften = (discretise (1/4) $ shift' 82900 $ choose [0.1..0.49])
+      bOff = ccv 0
+      bOn = ccv 127
+      change p = slow (shift' 18816 $ choose [1,2,3,4]) $ p
+  d1 
+    $ degradeBy 0
+    $ shift
+    $ (|* gain 1.2)
+    $ stack [
+      sometimesBy howoften (# gain 0.4) $ struct pat $ note "[-7/3, -4/3]"  # midichan 15
+      , sometimesBy howoften (# midinote 3) $ struct pat $ midinote 2
+      , sometimesBy howoften (# bOn) $ struct pat $ ccn 6 # bOff # midichan 15 # gain 1
+      , change $ ccn 1 # ccv (range 0 127 $ shrand 101) # midichan 15
+      , change $ ccn 2 # ccv (range 0 127 $ shrand 102) # midichan 15
+      , change $ ccn 3 # ccv (range 0 127 $ shrand 103) # midichan 15
+      , change $ ccn 4 # ccv (range 0 45 $ shrand 104) # midichan 15
+      , ccn 5 # ccv 0 # midichan 15
+    ] # s "midi"
+
+hush

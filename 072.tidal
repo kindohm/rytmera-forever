@@ -1,0 +1,41 @@
+
+
+
+setcps (160/120/2)
+
+do
+  let spat = gain (shift' 2343 $ randcat ( 
+              (replicate 1 "1")
+              ++ (replicate 2 "1*2") 
+              ++ (replicate 3 "1*3") 
+              ++ (replicate 4 "1*4") 
+              ++ (replicate 5 "1*5") 
+              ++ (replicate 6 "1*6") 
+              ++ (replicate 7 "1*7") 
+              ++ (replicate 8 "1*8") 
+              ++ (replicate 9 "1*9") 
+              ++ (replicate 10 "1*10") 
+              ))
+  d1 
+    $ whenmod 15 10 (degradeBy 0.5)
+    $ fast (discretise (1/4) $ shift' 2389 $ choose [0.7,0.71..3])
+    $ every 3 (within (0.75,0.9) (const $ midinote "~ ~ ~ [~ 1]" # s "midi"))
+    $ every 3 (within (0.5,0.75) (const $ midinote "~ 3" # s "midi"))
+    $ (|* gain 1.2)
+    $ stack [ 
+      spat # midichan 2 # note "-24" 
+      , spat # midichan 15 # note "0" # legato 1
+      , slow 8 $ ccn 1 # ccv (range 0 127 $ shrand 777) # midichan 15
+      , slow 8 $ ccn 2 # ccv (range 0 127 $ shrand 778) # midichan 15
+      , slow 8 $ ccn 3 # ccv (range 0 127 $ shrand 779) # midichan 15
+      , slow 8 $ ccn 4 # ccv (shift' 444 $ choose [0,127]) # midichan 15
+      , slow 8 $ ccn 5 # ccv (range 0 127 $ shrand 781) # midichan 15
+      , slow 8 $ ccn 6 # ccv (range 0 127 $ shrand 782) # midichan 15
+    ] # s "midi"
+
+    hush
+
+
+hush
+
+d1 $ s "midi" # midichan 15
