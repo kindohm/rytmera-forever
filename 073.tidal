@@ -1,25 +1,52 @@
-setcps (160/120/2)
-
 do
-  let pat = (shift $ sometimesBy 0.2 one $ shift $ slow "<2 4>" $ "1(<11 7 13 5 9>,32,0)") :: Pattern Bool
+  let pat = (shift $ whenmod 19 14 (sometimesBy 0.5 one) 
+            $ shift $ sometimesBy 0.2 one $ shift 
+            $ slow "<2 4 2 4 6>" $ "1(<11 7 13 5 9>,32,0)") :: Pattern Bool
       defaultWidth = 9
-      howoften = (discretise (1/4) $ shift' 82900 $ choose [0.1..0.49])
+      howoften = (discretise (1/4) $ shift' 82900 $ choose [0.25..0.60])
       bOff = ccv 0
       bOn = ccv 127
       change p = slow (shift' 18816 $ choose [1,2,3,4]) $ p
+      chstruct = "1*2 1*2 1 ~"
+      chmod p = whenmod 23 18 g $ sometimes (0.0625 <~) $ whenmod 20 10 (slow 2) $ shift' 77 $ p
   d1 
     $ degradeBy 0
-    $ shift
+    $ shift' 77109
     $ (|* gain 1.2)
+    $ whenmod 12 8 palindrome
+    $ whenmod 31 28 (iter 8)
     $ stack [
-      sometimesBy howoften (# gain 0.4) $ struct pat $ note "[-7/3, -4/3]"  # midichan 15
+      -- backbeat
+      g $ whenmod 26 13 g $ (0.0625 ~>) $ midinote "1" # gain (range 0.9 1 $ shrand 3388)
+      -- ch
+      , chmod $ struct chstruct $ midinote "8" 
+        # gain (range 0.9 1 $ shrand 44)
+      -- harmor synth
+      , sometimesBy howoften (# gain (discretise (1/6) $ shift' 661 $ choose [0.4,0.4,1])) 
+          $ struct pat $ note "[-7/3,-4/3]" # midichan 15 
+          # gain (discretise (1/7) $ shift' 2322 $ choose [0.4,1,1])
+      -- main drum pat
       , sometimesBy howoften (# midinote 3) $ struct pat $ midinote 2
-      , sometimesBy howoften (# bOn) $ struct pat $ ccn 6 # bOff # midichan 15 # gain 1
+      -- harmor CC something
+      , sometimesBy howoften (# ccv (whenmod 28 21 (const $ 0) $ 127)) 
+          $ struct pat $ ccn 6 # ccv (whenmod 28 21 (const $ 127) $ 0) 
+            # midichan 15 # gain 1
+      -- harmor cc's
       , change $ ccn 1 # ccv (range 0 127 $ shrand 101) # midichan 15
-      , change $ ccn 2 # ccv (range 0 127 $ shrand 102) # midichan 15
-      , change $ ccn 3 # ccv (range 0 127 $ shrand 103) # midichan 15
-      , change $ ccn 4 # ccv (range 0 45 $ shrand 104) # midichan 15
-      , ccn 5 # ccv 0 # midichan 15
-    ] # s "midi"
+      , change $ ccn 2 # ccv (range 0 127 $ shrand 202) # midichan 15
+      , change $ ccn 3 # ccv (range 0 127 $ shrand 303) # midichan 15
+      , change $ ccn 4 # ccv (range 0 45 $ shrand 404) # midichan 15
+      -- , ccn 5 # ccv 0 # midichan 15
+      -- scene
+      , whenmod 30 10 (# ccv (discretise (shift' 6655 $ choose [1,2,3,4]) $ shift' 66 $ choose [0,1,2,3])) 
+        $ struct pat $ ccn "92" # ccv 0
+      -- ch open
+      , ccn "44*8" # ccv (shift' 706 $ choose [1,1,1,1,1,1,126])
+    ] # s "midi" # cps (160/120/2)
+
+hush
+
+
+d1 $ stack [ midinote "8*8", ccn 44 # ccv (range 0 64 $ slow 3 sine)] # s "midi"
 
 hush

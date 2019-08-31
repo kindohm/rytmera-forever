@@ -1,0 +1,16 @@
+
+d1
+  $ stack [
+    slow 4 $ note 0 # midichan 15
+    , slow 4 $ note 0 # midichan 14
+    , slow 1 $ ccn 1 # ccv 40 # midichan 15
+    , slow 1 $ ccn 2 # ccv 2 # midichan 15
+    , slow 1 $ ccn 3 # ccv 0 # midichan 15
+    , slow 1 $ ccn 4 # ccv (range 0 127 $ slow 31 sine) # midichan 15
+    , slow 1 $ ccn 1 # ccv 40 # midichan 14
+    , slow 1 $ ccn 2 # ccv 3 # midichan 14
+    , slow 1 $ ccn 3 # ccv 0 # midichan 14
+    , slow 1 $ ccn 4 # ccv (range 0 127 $ slow 31.333 sine) # midichan 14
+  ] # cps (160/120/2) # s "midi"
+
+  hush

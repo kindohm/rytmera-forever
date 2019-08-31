@@ -1,0 +1,25 @@
+
+
+setcps (160/120/2)
+
+do
+  let pat1 = "{1 ~ 1}%8" :: Pattern Bool
+  let pat2 = "1 1" :: Pattern Bool
+  let pat3 = "{1 ~ ~}%16" :: Pattern Bool
+  let catpat = (whenmod 20 10 move $ whenmod 21 15 palindrome $ whenmod 9 5 (const pat2) $ whenmod 16 12 (const pat3) $ pat1) :: Pattern Bool
+  let change = slow 4
+  d1 
+    $ (|* gain 1.2)
+    $ stack [ 
+      struct catpat $ note "[-10]" # midichan 15
+      , change $ ccn 1 # ccv (range 0 127 $ shrand 101) # midichan 15
+      , change $ ccn 2 # ccv (range 0 127 $ shrand 102) # midichan 15
+      , change $ ccn 3 # ccv (range 0 127 $ shrand 103) # midichan 15
+      , change $ ccn 4 # ccv (range 0 25 $ shrand 104) # midichan 15
+      , ccn 5 # ccv 0 # midichan 15
+      , struct catpat $ midinote 0
+      , rarely roll $ midinote 3
+      , midinote "1*4" # gain (range 0.8 1 $ shrand 3881)
+    ] # s "midi"
+
+    hush

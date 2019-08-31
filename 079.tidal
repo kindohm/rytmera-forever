@@ -1,0 +1,29 @@
+
+do
+  let pat = (whenmod 21 18 (iter 8) 
+              $ whenmod 10 5 palindrome 
+              $ whenmod 6 3 move 
+              $ "{0 0 1 1 1 ~ ~ ~ ~}%16") :: Pattern Bool
+  d1
+    $ (|* gain 1.19)
+    $ stack [
+      (|+ note "-3") $ struct pat $ midichan 14 # note "[0,3,8,10]"
+      , struct (inv pat) $ midichan 15
+      , struct (pat) $ midinote 0 
+      , (4 ~>) $ struct (pat) $ midinote 8
+      , (5 ~>) $ struct (inv pat) $ midinote 9
+      , (6 ~>) $ struct (pat) $ midinote 10
+      , (7 ~>) $ struct (inv pat) $ midinote 11
+      , slow 1.5 $ midinote "3"
+      , (|+ note "-3") $ slow 1.5 $ midichan 14 # gain 0.4 # note "[0,3,8,10]"
+      , g $ (0.0625 ~>) $ midinote "{1 ~ ~ ~ ~}%4"
+      , g $ sometimesBy 0.4 (# ccv 0) $ shift' 100 $ ccn 92 # ccv 0
+      , someCyclesBy 0.3 (# ccv 127) $ shift' 132891 $ ccn 35 # ccv 0
+      , ccn 1 # ccv (range 0 127 $ slow 20 sine) # midichan 14
+      , ccn 2 # ccv (range 0 127 $ slow 19 sine) # midichan 14
+      , g $ ccn 3 # ccv (range 1 127 $ slow 21 sine) # midichan 14
+    ] # s "midi" # cps (160/120/2)
+
+  hush
+
+  slow 4 $ foldEvery [2,3] (|+ note 2) $ (|+ note "-15") $ note "[0,3,8,10]" # midichan 15 # gain 0.9

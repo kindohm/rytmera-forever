@@ -1,0 +1,21 @@
+do
+  let pat = (shift $ sometimesBy 0.2 one $ "1(<3>,32,0) 1") :: Pattern Bool
+      defaultWidth = 9
+      howoften = (discretise (1/4) $ shift' 82900 $ choose [0.25..0.50])
+      bOff = ccv 0
+      bOn = ccv 127
+      change p = slow (shift' 18816 $ choose [1,2,3,4]) $ p
+  d1 
+    $ (|* gain 1.2)
+    $ stack [
+      (# gain "1 0.4") $ struct pat $ note "[-7/3, -4/3]"  # midichan 15
+      , struct pat $ midinote "2"
+      , (# ccv "0 127") $ struct pat $ ccn 6 # midichan 15 # gain 1
+      , change $ ccn 1 # ccv (range 0 127 $ shrand 101) # midichan 15
+      , change $ ccn 2 # ccv (range 0 127 $ shrand 102) # midichan 15
+      , change $ ccn 3 # ccv (range 0 127 $ shrand 103) # midichan 15
+      , change $ ccn 4 # ccv (range 0 45 $ shrand 104) # midichan 15
+      , ccn 5 # ccv 0 # midichan 15
+    ] # s "midi" # cps (160/120/2)
+
+hush

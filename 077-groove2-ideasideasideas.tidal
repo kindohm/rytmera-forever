@@ -1,0 +1,43 @@
+
+do
+  let 
+      mainpat = (whenmod 21 16 (sometimesBy 0.2 one) 
+                  $ shift $ whenmod 15 11 (sometimesBy 0.2 one) 
+                  $ shift $ sometimesBy 0.2 roll' 
+                  $ "1(<3 5 3>,16,<0 0>)") :: Pattern Bool
+      hatpats = ["8*2", "8*3", "8(3,16,<0 8 4>)", "8(3,8,<0 4 2>)", "8*4" ]
+  d1 
+      $ (|* gain 1.2)
+      $ whenmod 30 20 palindrome
+      $ whenmod 12 8 (move)
+      $ whenmod 19 16 (iter 8)
+      $ every 6 (within (0,0.25) g)
+      $ stack [
+          fast 2 $ roll $ midinote "8" -- hat
+          , ((5/16) ~>) $ midinote "0" -- perc
+          , sometimesBy 0.2 roll' 
+              $ shift $ ((3/16) ~>) $ midinote "~ 1/2 ~ ~" -- snare
+          , every 2 (within (0.75,1) (const $ midinote "~ ~ ~ 3")) $ struct mainpat $ midinote 2 -- kick/clap
+          , every 2 (within (0.75,1) (const $ note "~ ~ ~ -7" # midichan 15 # gain 1)) $ struct mainpat 
+                  $ note (shift' 44 $ choose [-7,-7,-7]) # midichan 15 
+                    # gain (discretise (1/9) $ shift' 7766 $ choose [1,1,1,0.4])
+          , stack [
+              ccn 1 # ccv (range 0 104 $ slow 27 tri) # midichan 15
+              , ccn 2 # ccv (range 0 104 $ slow 26 tri) # midichan 15
+              , ccn 3 # ccv (range 0 30 $ slow 28 tri) # midichan 15
+              , ccn 4 # ccv (range 127 127 $ slow 29 tri) # midichan 15 -- release
+              , ccn 5 # ccv (range 0 30 $ slow 30 tri) # midichan 15 -- phwidth
+              , someCyclesBy 0.2 (# ccv (discretise 4 $ shift' 335 $ choose[0])) 
+                $ shift' 335 $ ccn 6 # ccv 127 # midichan 15 -- env
+              , every 2 (within (0.75,1) (const $ ccv "~ ~ ~ 127" # ccn 7 # midichan 15 # s "midi")) 
+                $ ccn 7 # ccv "0" # midichan 15 -- xfader
+              , someCyclesBy 0.2 (# ccv (shift' 6543 $ choose [0,32,127,96])) 
+                $ shift' 998877 $ ccn 8 # ccv 64 # midichan 15
+              , someCyclesBy 0.2 (# ccv 0) 
+                $ shift' 9087 $ ccn 9 # ccv 127 # midichan 15
+          ]
+    ]
+    # s "midi" # cps (160/120/2)
+
+
+      hush

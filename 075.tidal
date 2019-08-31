@@ -2,20 +2,37 @@ setcps (160/120/2)
 
 
 do
-  let slowpat = "[2 4 6 6 2 4 4 6 6 8]/30"
+  let slowpat = "[4 6 8 4 6 8]/30"
   let pat = (slow slowpat $ "1(<11 7 9 14 20>,32,<0 4 9>)") :: Pattern Bool
-      change = slow 4
+  let change = slow 2
   d1 
     $ (|* gain 1.2)
     $ stack [
       struct (whenmod 10 5 inv $ pat) $ note "[-7,-2]" # midichan 15
       , sometimesBy 0.5 (# midinote 3) $ struct (whenmod 10 5 inv $ inv $ pat) $ midinote 2
-      , slow slowpat $ move $ whenmod 16 8 g $ midinote "{8 8 [9 8]}%16"
       , change $ ccn 1 # ccv (range 0 127 $ shrand 101) # midichan 15
       , change $ ccn 2 # ccv (range 0 127 $ shrand 102) # midichan 15
       , change $ ccn 3 # ccv (range 0 127 $ shrand 103) # midichan 15
-      , change $ ccn 4 # ccv (range 0 45 $ shrand 104) # midichan 15
+      , change $ ccn 4 # ccv (range 0 35 $ shrand 104) # midichan 15
       , ccn 5 # ccv 0 # midichan 15
     ] # s "midi"
 
     hush
+
+do
+  let change = slow 4
+  let spat = "{1 ~ 1 ~ ~ 1 1}%16"
+  let dpat = "{2 ~ [2 3]/2 ~ ~ 2 2}%16"
+  d1 
+    $ (|* gain 1.2)
+    $ stack [
+      struct spat $ note "-8" # midichan 15 
+      , midinote dpat
+      , fast 2 $ ccn 1 # ccv (range 64 127 $ slow 30 sine) # midichan 15
+      , fast 2 $ ccn 2 # ccv (range 64 127 $ slow 31 sine) # midichan 15
+      , fast 2 $ ccn 3 # ccv (range 64 127 $ slow 32 sine) # midichan 15
+      , fast 2 $ ccn 4 # ccv (range 0 35 $ slow 34 sine) # midichan 15
+      , fast 2 $ ccn 5 # ccv 0 # midichan 15
+    ] # s "midi"
+
+  
